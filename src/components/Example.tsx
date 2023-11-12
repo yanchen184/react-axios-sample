@@ -2,6 +2,11 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Table, Button, Modal, Input } from "antd";
 
+// 後綴
+const POSTFIX = "blog_posts";
+const URL = "http://localhost:2999/";
+const POSTFIX_URL = URL + POSTFIX;
+
 const Example: React.FC = () => {
   const [data, setData] = useState<any[]>([]);
   const [editModalVisible, setEditModalVisible] = useState(false);
@@ -10,7 +15,7 @@ const Example: React.FC = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:2999/blog_posts")
+      .get(POSTFIX_URL)
       .then((response) => {
         setData(response.data);
       })
@@ -48,7 +53,7 @@ const Example: React.FC = () => {
   const handleSaveEdit = () => {
     // 更新數據的 API 請求
     axios
-      .put(`http://localhost:2999/blog_posts/${editData.id}`, {
+      .put(`${POSTFIX_URL}/${editData.id}`, {
         body: editedText,
       })
       .then((response) => {

@@ -1,61 +1,120 @@
-import { useEffect } from "react";
-import { Stomp } from "@stomp/stompjs";
-import SockJS from "sockjs-client";
-
+/* eslint-disable no-console */
+/* eslint-disable import/prefer-default-export */
+import { useEffect, useState } from "react";
+import {
+  IFrame,
+  Stomp,
+  StompSubscription,
+  CompatClient,
+  FrameImpl,
+} from "@stomp/stompjs";
+import SockJS from "sockjs-client/dist/sockjs";
 const RECONNECT_TIME = 5000;
 
-export function useWebSocket(path: any, setPayloadData: any) {
-  useEffect(() => {
-    
-    let stompClient = Stomp.over(
-      () => new SockJS(`http://localhost:8095/websocket/`)
-    );
+export function useWebSocket(path, setPayloadData) {
+  try {
+    let subscriptionObj: StompSubscription;
+    let stompClient: CompatClient | undefined = null;
 
-    const onMessageReceived = (message: { body: string }) => {
-      const messageJson = JSON.parse(message.body);
-      const sendMsg = messageJson.jobUuid || message.body;
-      if (stompClient) {
+    const clearSubscription = () => {
+      subscriptionObj = null;
+    };
+
+    const [payload, setPayload] = useState<string>();
+
+    useEffect(() => {
+      if (payload) {
+        console.log(
+          `[${new Date().toLocaleTimeString()}]: ${payload}`
+        );
+      }
+    }, [payload]);
+
+    useEffect(() => {
+      let timeoutTimer = null;
+
+      function resetPingPong() {
+        clearTimeout(timeoutTimer);
+        timeoutTimer = setTimeout(() => {
+          clearTimeout(timeoutTimer);
+        }, 20500);
+      }
+      const onMessageReceived = (message: { body: string }) => {
+        resetPingPong();
+        // 向後端發送確認訊息
+        setPayload(message.body);
+        const messageJson = JSON.parse(message.body);
+        const sendMsg = message.body;
         stompClient.send(sendMsg);
+
         setPayloadData(messageJson);
-      }
-    };
+      };
 
-    stompClient.onConnect = (frame) => {
-      console.log("[websocket open]");
-      const subscribePath = `/topic/${path}/`;
-      stompClient.subscribe(subscribePath, onMessageReceived);
-    };
+      stompClient = Stomp.over(
+        () => new SockJS("http://localhost:8085/websocket")
+      );
 
-    stompClient.onWebSocketClose = (closeEvent) => {
-      console.log("[websocket close]", closeEvent.reason);
-    };
+      const onMessageReceivedNotification = (message: { body: string }) => {
+        resetPingPong();
+        // 向後端發送確認訊息
+        setPayload(message.body);
+      };
 
-    stompClient.onWebSocketError = (event) => {
-      console.log("onWebSocketError", event);
-    };
+      stompClient.onConnect = (_frame: FrameImpl) => {
+        console.log("[websocket open]");
+        let subscribePath = "";
+        subscribePath = "/topic/yc";
+        subscriptionObj = stompClient.subscribe(
+          subscribePath,
+          onMessageReceived
+        );
+      };
 
-    stompClient.onStompError = (frame) => {
-      console.log("onStompError", frame);
-    };
+      stompClient.onWebSocketClose = (closeEvent: CloseEvent) => {
+        /**
+         * invoked when underlying WebSocket is closed.
+         */
+        clearSubscription();
+        console.log("[websocket close]", closeEvent.reason);
+        clearTimeout(timeoutTimer);
+      };
 
-    stompClient.onDisconnect = () => {
-      console.log("onDisconnect");
-    };
+      stompClient.onWebSocketError = (event: Event) => {
+        clearSubscription();
+        console.log("onWebSocketError", event);
+      };
 
-    stompClient.connect("");
+      stompClient.onStompError = (frame: IFrame) => {
+        clearSubscription();
+        console.log("onStompError", frame);
+      };
 
-    // 設置重新連接延遲和心跳
-    stompClient.reconnectDelay = RECONNECT_TIME;
-    stompClient.activate();
-    stompClient.heartbeat.incoming = 100;
-    stompClient.heartbeat.outgoing = 100;
+      stompClient.onDisconnect = () => {
+        clearSubscription();
+        console.log("onDisconnect");
+      };
 
-    return () => {
-      // 在組件卸載時取消WebSocket訂閱並清理資源
-      if (stompClient) {
-        stompClient.disconnect();
-        stompClient = null;
-      }
-    };
-  }, [path, setPayloadData]);
+      stompClient.debug = (str: String) => {
+        // eslint-disable-nex-line no-console
+        if (str === "<<< PONG") {
+          clearTimeout(timeoutTimer);
+          timeoutTimer = setTimeout(() => {
+            clearTimeout(timeoutTimer);
+            stompClient.send(
+              `station: ${stationCode} websocket network connection exception`
+            );
+          }, 10500);
+        } else if (str !== "Received data" && !str.startsWith(">>> SEND")) {
+          console.log(str);
+        }
+      };
+
+      stompClient.reconnectDelay = RECONNECT_TIME;
+      stompClient.activate();
+      stompClient.heartbeat.incoming = 100;
+      stompClient.heartbeat.outgoing = 100;
+    }, [stompClient]);
+  } catch (e) {
+    console.log("useWebsocket error", e);
+  }
 }

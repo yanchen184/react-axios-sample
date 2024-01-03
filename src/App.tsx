@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Home from "./components/Home";
 import About from "./components/About";
 import Example from "./components/Example";
+import WebSocket from "./components/WebSocket";
 
 const App: React.FC = () => {
   return (
@@ -21,6 +22,9 @@ const App: React.FC = () => {
             <li>
               <Link to="/example">Example</Link>
             </li>
+            <li>
+              <Link to="/websocket">Websocket</Link>
+            </li>
           </ul>
         </nav>
 
@@ -28,6 +32,7 @@ const App: React.FC = () => {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/example" element={<Example />} />
+          <Route path="/websocket" element={<WebSocket />} />
         </Routes>
       </div>
     </Router>

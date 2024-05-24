@@ -38,7 +38,7 @@ const Example: React.FC = () => {
     {
       title: "Edit",
       key: "edit",
-      render: (text: any, record: any) => (
+      render: (_text: any, record: any) => (
         <Button onClick={() => handleEdit(record)}>Edit</Button>
       ),
     },

@@ -43,7 +43,7 @@ const Home: React.FC = () => {
   const handleWhisper = async () => {
     setWhispering(true);
     try {
-      const apiUrl = `http://localhost:8080/whisper?path=C:/Users/whisper/uploadFile/${selectedFile?.name}`;
+      const apiUrl = `http://localhost:8080/whisper?fileName=${selectedFile?.name}`;
 
       const response = await fetch(apiUrl, {
         method: "GET",
@@ -61,17 +61,59 @@ const Home: React.FC = () => {
   };
 
   return (
-    <div>
-      <h1>Whisper demo</h1>
-      <div>
-        <input type="file" onChange={handleFileChange} />
-        <button onClick={handleUpload} disabled={uploading}>
-          {uploading ? "上傳中..." : "上傳文件"}
-        </button>
-        <button onClick={handleWhisper} disabled={whispering}>
-          {whispering ? "翻譯中..." : "翻譯"}
-        </button>
-        <h2>whisperText: {whisperText}</h2>
+    <div style={{ textAlign: "center", fontFamily: "Arial, sans-serif" }}>
+      <h1 style={{ fontSize: "32px", marginBottom: "20px" }}>Whisper Demo</h1>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <input
+          type="file"
+          onChange={handleFileChange}
+          style={{ marginBottom: "10px" }}
+        />
+        <div style={{ marginBottom: "20px" }}>
+          <button
+            onClick={handleUpload}
+            disabled={uploading}
+            style={{
+              padding: "10px 20px",
+              fontSize: "18px",
+              fontWeight: "bold",
+              marginRight: "10px",
+            }}
+          >
+            {uploading ? "上傳中..." : "上傳文件"}
+          </button>
+          <button
+            onClick={handleWhisper}
+            disabled={whispering}
+            style={{
+              padding: "10px 20px",
+              fontSize: "18px",
+              fontWeight: "bold",
+              marginLeft: "10px",
+            }}
+          >
+            {whispering ? "模型轉文字中..." : "離線語音轉文字"}
+          </button>
+        </div>
+        <h2 style={{ fontSize: "24px", marginBottom: "10px" }}>
+          Whisper Text:
+        </h2>
+        <div style={{ fontSize: "18px", textAlign: "left" }}>
+          {whisperText.split("\n").map((item, key) => {
+            return (
+              <span key={key}>
+                {item}
+                <br />
+              </span>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

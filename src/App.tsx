@@ -11,7 +11,7 @@ const App: React.FC = () => {
   return (
     <Router>
       <div>
-        <nav>
+        {/* <nav>
           <ul>
             <li>
               <Link to="/">Home</Link>
@@ -26,7 +26,7 @@ const App: React.FC = () => {
               <Link to="/whisper">Whisper</Link>
             </li>
           </ul>
-        </nav>
+        </nav> */}
 
         <Routes>
           <Route path="/" element={<Home />} />

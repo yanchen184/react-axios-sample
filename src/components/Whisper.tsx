@@ -21,7 +21,7 @@ const Home: React.FC = () => {
       try {
         const formData = new FormData();
         formData.append("file", selectedFile);
-        const response = await fetch("http://localhost:8080/upload", {
+        const response = await fetch("http://localhost:8087/upload", {
           method: "POST",
           body: formData,
         });
@@ -43,7 +43,7 @@ const Home: React.FC = () => {
   const handleWhisper = async () => {
     setWhispering(true);
     try {
-      const apiUrl = `http://localhost:8080/whisper?path=C:/Users/whisper/uploadFile/${selectedFile?.name}`;
+      const apiUrl = `http://localhost:8087/whisper?path=C:/Users/whisper/uploadFile/${selectedFile?.name}`;
 
       const response = await fetch(apiUrl, {
         method: "GET",
@@ -62,7 +62,7 @@ const Home: React.FC = () => {
 
   return (
     <div>
-      <h1>Whisper demo</h1>
+      <h1>Welcome to My Vite React App</h1>
       <div>
         <input type="file" onChange={handleFileChange} />
         <button onClick={handleUpload} disabled={uploading}>
@@ -72,6 +72,7 @@ const Home: React.FC = () => {
           {whispering ? "翻譯中..." : "翻譯"}
         </button>
         <h2>whisperText: {whisperText}</h2>
+        <h2> selectedFile: {selectedFile?.name}</h2>
       </div>
     </div>
   );

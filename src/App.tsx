@@ -37,7 +37,7 @@ const App: React.FC = () => {
           <script
             async
             src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7491649138626528"
-            crossorigin="anonymous"
+            crossOrigin="anonymous"
           ></script>
         </Helmet>
         <div>

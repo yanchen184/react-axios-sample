@@ -1,18 +1,21 @@
 // src/components/Home.tsx
 
 import React, { useState } from "react";
+import questions from "./questions.json";
+
+
 
 const Home: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState<boolean>(false);
   const [whispering, setWhispering] = useState<boolean>(false);
   const [whisperText, setWhisperText] = useState<string>("");
+  const [displayText, setDisplayText] = useState<string>("");
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       setSelectedFile(event.target.files[0]);
     }
-    // call api to upload file
   };
 
   const handleUpload = async () => {
@@ -52,6 +55,7 @@ const Home: React.FC = () => {
       if (response.ok) {
         setWhisperText(await response.text());
       } else {
+        console.error("轉文字失敗");
       }
     } catch (error) {
       console.error("上传文件时出错:", error);
@@ -60,9 +64,15 @@ const Home: React.FC = () => {
     }
   };
 
+  const handleShowText = async () => {
+    setDisplayText(JSON.stringify(questions, null, 2));
+  };
+
   return (
     <div style={{ textAlign: "center", fontFamily: "Arial, sans-serif" }}>
-      <h1 style={{ fontSize: "32px", marginBottom: "20px" }}>Whisper Demo</h1>
+      <h1 style={{ fontSize: "32px", marginBottom: "20px" }}>chatHkt</h1>
+      <h2 style={{ fontSize: "32px", marginBottom: "20px" }}>YC</h2>
+      <h2 style={{ fontSize: "24px", marginBottom: "20px" }}>whisper</h2>
       <div
         style={{
           display: "flex",
@@ -100,10 +110,19 @@ const Home: React.FC = () => {
           >
             {whispering ? "模型轉文字中..." : "離線語音轉文字"}
           </button>
+          <button
+            onClick={handleShowText}
+            style={{
+              padding: "10px 20px",
+              fontSize: "18px",
+              fontWeight: "bold",
+              marginLeft: "10px",
+            }}
+          >
+            show Fine-Tuning result   
+          </button>
         </div>
-        <h2 style={{ fontSize: "24px", marginBottom: "10px" }}>
-          Whisper Text:
-        </h2>
+        <h2 style={{ fontSize: "24px", marginBottom: "10px" }}>Whisper Text:</h2>
         <div style={{ fontSize: "18px", textAlign: "left" }}>
           {whisperText.split("\n").map((item, key) => {
             return (
@@ -114,6 +133,8 @@ const Home: React.FC = () => {
             );
           })}
         </div>
+        <h2 style={{ fontSize: "24px", marginTop: "20px" }}>Fine-Tuning result :</h2>
+        <pre style={{ fontSize: "18px", textAlign: "left" }}>{displayText}</pre>
       </div>
     </div>
   );
